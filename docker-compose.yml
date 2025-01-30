@@ -40,6 +40,11 @@ services:
     - DB_PASSWORD=${DB_PASSWORD}
     - DB_HOST=${DB_HOST}
     - DB_PORT=${DB_PORT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
 
 
 
