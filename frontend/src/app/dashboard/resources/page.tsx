@@ -3,12 +3,15 @@
 import ResourceFormModal from "@/components/dashboard/resources/resource-form-modal.tsx";
 import { ResourceList } from "@/components/dashboard/resources/resource-list";
 import { Button } from "@/components/ui/button";
+import { resourceApis } from "@/services/api/resources/resources";
+import { useQuery } from "@tanstack/react-query";
 
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function ResourcesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+    const { data:resourData} = useQuery(resourceApis.queries.getAll)
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -17,7 +20,7 @@ export default function ResourcesPage() {
             <Plus className="mr-2 h-4 w-4" /> Add Resource
           </Button>
       </div>
-      <ResourceList onOpenChange={setIsModalOpen} />
+      <ResourceList resourData={resourData ?? []} openChange={setIsModalOpen} />
       <ResourceFormModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}

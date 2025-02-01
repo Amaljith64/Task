@@ -1,74 +1,65 @@
 
 import axiosInstance from "@/config/axios-instance";
 import { LoginCredentials, RegisterCredentials, TokenResponse, UserInfo } from "@/types/auth";
+import axios from "axios";
 
 
-export const registerUser = async (credentials: RegisterCredentials): Promise<TokenResponse>  => {
-    try{
-        // const response = await axios.post("auth/login/",credentials)
-
-        // return response.data
-        const {data} = await axiosInstance.post("/api/auth/register", credentials, {
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-        return data
-
+export const registerUser = async (credentials: RegisterCredentials): Promise<TokenResponse> => {
+    try {
+        const { data } = await axios.post('/api/auth/register', credentials);
+        return data;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Registration failed: ${error.message}`);
+        } else {
+            throw new Error('Registration failed: An unknown error occurred');
+        }
     }
-    catch(error){
-        throw new Error(`Registration failed: ${error}`);
+};
+
+export const loginUser = async (credentials: LoginCredentials): Promise<TokenResponse> => {
+    try {
+        const { data } = await axios.post("/api/auth/login/", credentials)
+        return data.data;;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Login failed: ${error.message}`);
+        } else {
+            throw new Error('Login failed: An unknown error occurred');
+        }
     }
 }
 
-export const loginUser = async (credentials: LoginCredentials): Promise<TokenResponse>  =>{
-    console.log(credentials,'from login fun');
-    try{
-        const response = await axiosInstance.post("/auth/login/",credentials)
-        console.log(response,'rrrrrrrrrrrrrrrrrr');
-        return response.data
+export const logoutUser = async (): Promise<void> => {
+    try {
+        const { data } = await axios.post("/api/auth/logout/")
+        return data
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Logout failed: ${error.message}`);
+        } else {
+            throw new Error('Logout failed: An unknown error occurred');
+        }
+    }
+}
+
+
+export const getUserInfo = async (): Promise<UserInfo> => {
+    try {
+        const { data } = await axiosInstance.get('/auth/user-info')
+        return data
     }
     catch (error) {
-        console.log(error,'error');
-        throw new Error(`Login failed: ${error}`)
-    }
-}
-
-export const logoutUser = async (): Promise<void> =>{
-    try{
-        const response = await axiosInstance.post("/auth/logout/")
-
-        return response.data
-    }
-    catch (error){
-        console.log(error,'logout err');
-        throw new Error( `Logout failed : ${error}`);
-    }
-}
-
-
-export const getUserInfo = async () : Promise<UserInfo>=>{
-    try{
-        const response = await axiosInstance.get('/auth/user-info')
-        console.log(response,'useeeeeeeeeee');
-
-        return response.data
-    }
-    catch(error){
-        console.log(error);
         throw new Error(`getting user failed : ${error}`)
     }
 }
 
-export const refreshToken = async (): Promise<TokenResponse> =>{
+export const refreshToken = async (): Promise<TokenResponse> => {
     try {
-        const response = await axiosInstance.post('/auth/refresh/')
-
-        return response.data
+        const { data } = await axiosInstance.post('/auth/refresh/')
+        return data
     }
-
-    catch (error){
-        console.log(error,'hhhhhh');
+    catch (error) {
         throw new Error(`Refreshing token failed ${error}`);
     }
 }

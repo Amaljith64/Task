@@ -18,6 +18,20 @@ export interface UpdateCategory{
     updates: Partial<CreateCategory>;
 }
 
+export interface CategorySummary {
+    total_resources: number;
+    completed_resources: number;
+    completion_percentage: number;
+    total_time_spent: number;
+    category_breakdown: {
+      [key: string]: {
+        total: number;
+        completed: number;
+        completion_percentage: number;
+      }
+    }
+  }
+
 export interface CategoryMutations {
     create: UseMutationOptions<Category, Error, CreateCategory>
     update: UseMutationOptions<Category, Error, UpdateCategory>

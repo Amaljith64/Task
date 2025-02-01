@@ -7,6 +7,7 @@ export function authMiddleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const token = req.cookies.get("access_token");
+  console.log(token,'token');
   const isLoggedIn = token?.value ? true : false;
   
   // If accessing auth paths while logged in

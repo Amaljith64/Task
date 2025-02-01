@@ -3,11 +3,13 @@ from rest_framework import viewsets
 from .serializers import CategorySerializer,ProgressLogSerializer,ResourceSerializer,ResourceSummarySerializer,CategorySummarySerializer
 from .models import Category,ProgressLog,Resource
 from rest_framework.views import APIView
+from django.utils import timezone
 from django.db.models import Count, Sum, F, FloatField,When,Case,Value
 from django.db.models.functions import Coalesce,Cast
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.decorators import action
 # Create your views here.
 
 
@@ -22,12 +24,43 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class ResourceViewSet(viewsets.ModelViewSet):
     serializer_class=ResourceSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Resource.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+    
+    @action(detail=True,methods=['post'])
+    def mark_complete(self,request,pk=None):
+        print(pk,'pkpkpk')
+        resource = self.get_object()
+        current_time = timezone.now()
+
+        resource_created = resource.created_at
+        time_diff = current_time - resource_created
+        time_spent_minutes = int(time_diff.total_seconds() / 60)
+
+        progress_log, created = ProgressLog.objects.get_or_create(
+            resource=resource,
+            user=request.user,
+            defaults={
+                'completion_status': True,
+                'completion_date': current_time,
+                'time_spent': time_spent_minutes
+            }
+        )
+
+        if not created:
+            progress_log.completion_status = True
+            progress_log.completion_date = current_time
+            progress_log.time_spent = time_spent_minutes
+            progress_log.save()
+
+        return Response({'message':'Resource marked as complete'},status=status.HTTP_200_OK)
+
+
 
 class CategorySummaryView(APIView):
 
@@ -78,6 +111,20 @@ class CategorySummaryView(APIView):
                     {'error': 'Category not found'}, 
                     status=status.HTTP_404_NOT_FOUND
                 )
+            
+            resource_breakdown = [ 
+                {
+                    'id':res.id,
+                    'title': res.title,
+                    'category_name': res.category.name,
+                    'type': res.type,
+                    'created_at':res.created_at,
+                    'completion_status': ProgressLog.objects.filter(
+                        resource=res, 
+                        user=request.user
+                    ).values_list('completion_status', flat=True).first() or False
+                } for res in resource
+            ]
 
             data = {
                 'id': category_summary.id,
@@ -86,11 +133,13 @@ class CategorySummaryView(APIView):
                 'completed_resources': category_summary.completed_resources,
                 'total_time_spent': category_summary.total_time_spent,
                 'completion_percentage': category_summary.completion_percentage,
+                'resource_breakdown':resource_breakdown
             }
 
             serializer = CategorySummarySerializer(data)
             return Response(serializer.data)
         except Exception as e:
+            print(e,'err')
        
             return Response({'error': str(e)}, status=500)
     
@@ -99,7 +148,7 @@ class CategorySummaryView(APIView):
 class ResourceSummaryView(APIView):
     # permission_classes = [IsAuthenticated]
     def get(self, request):
-        print('recieved call to ResourceSummaryView',request.user)
+
         try:
             resources = Resource.objects.filter(user=request.user)
             total_resources = resources.count()
@@ -129,25 +178,45 @@ class ResourceSummaryView(APIView):
                 ),
             )
 
-            category_breakdown = {
-                cat.name: {
+            category_breakdown = [
+                {
+                    'id':cat.id,
+                    'name':cat.name,
                     'total': cat.total,
                     'completed': cat.completed,
                     'completion_percentage': (cat.completed / cat.total * 100) if cat.total > 0 else 0
-                } for cat in categories
-            }
+                }for cat in categories
+            ]
+
+            resource_breakdown = [ 
+                {
+                    'id':res.id,
+                    'title': res.title,
+                    'category_name': res.category.name,
+                    'type': res.type,
+                    'created_at':res.created_at,
+                    'completion_status': ProgressLog.objects.filter(
+                        resource=res, 
+                        user=request.user
+                    ).values_list('completion_status', flat=True).first() or False
+                } for res in resources
+            ]
 
             data = {
                 'total_resources': total_resources,
-                'completed_resources': completed_resources,
+                'total_completed': completed_resources,
                 'completion_percentage': completion_percentage,
                 'total_time_spent': total_time_spent,
-                'category_breakdown': category_breakdown
+                'category_breakdown': category_breakdown,
+                'resource_breakdown': resource_breakdown
             }
+
+            serializer = ResourceSummarySerializer(data)
+            return Response(serializer.data)
 
             return Response(data)
         except Exception as e:
-            print(e,'from summ')
+            print(e,'errrrr')
             return Response(
                 {'error': str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

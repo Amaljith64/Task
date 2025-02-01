@@ -9,7 +9,8 @@ router.register(r'categories',CategoryViewSet,basename='category')
 
 urlpatterns = [
     # Include all viewset routes
-    path('', include(router.urls)),
-    path('resourcess/summary/', ResourceSummaryView.as_view(), name='resource-summary'),
+    path('resources/summary/', ResourceSummaryView.as_view(), name='resource-summary'),
     path('categories/<int:id>/summary/', CategorySummaryView.as_view(), name='category-summary'),
+    
+    path('', include(router.urls)),
 ]

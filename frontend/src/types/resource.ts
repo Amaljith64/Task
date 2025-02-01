@@ -11,24 +11,19 @@ export interface Resource {
 
 }
 export interface ResourceSummary {
+  name:string
   total_resources: number;
   completed_resources: number;
   completion_percentage: number;
   total_time_spent: number;
-  category_breakdown: {
-    [key: string]: {
-      total: number;
-      completed: number;
-      completion_percentage: number;
-    }
-  }
+  resource_breakdown: Resource[]
 }
 
 export interface CreateResource{
   title:string
   description:string
   type:string
-  category:number
+  category:number| string
 
 }
 
@@ -40,13 +35,14 @@ export interface UpdateResource{
 
 export interface ResourceQuerry {
   getAll: UseQueryOptions<Resource[], Error, Resource[]>
-  getById:(id:number)=> UseQueryOptions<Resource, Error, Resource>
+  getById:(id:number)=> UseQueryOptions<ResourceSummary, Error, ResourceSummary>
   getSummary: UseQueryOptions<ResourceSummary,Error,ResourceSummary>
 }
 
 export interface ResourceMutations {
   create: UseMutationOptions<CreateResource, Error, CreateResource  >
   update: UseMutationOptions<Resource, Error, UpdateResource>
+  updateStatus: UseMutationOptions<Resource, Error, UpdateResource>
   delete: UseMutationOptions<void, Error, number>
 }
 

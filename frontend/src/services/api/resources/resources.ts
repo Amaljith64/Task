@@ -1,5 +1,5 @@
 import axiosInstance from "@/config/axios-instance";
-import { CreateResource, Resource, ResourceApis,ResourceSummary,UpdateResource } from "@/types/resource";
+import { CreateResource, ResourceApis,UpdateResource } from "@/types/resource";
 
 
 export const RESOURCE_KEYS = {
@@ -30,7 +30,7 @@ export const resourceApis:ResourceApis = {
         getSummary:{
             queryKey:['resource','summary'],
             queryFn: async() =>{
-                const response = await axiosInstance.get('/api/resourcess/summary/');
+                const response = await axiosInstance.get('/api/resources/summary/');
                 console.log(response,'form summary');
                 return response.data;
             }
@@ -46,6 +46,12 @@ export const resourceApis:ResourceApis = {
         update:{
             mutationFn: async ({id,updates}:UpdateResource) =>{
                 const response = await axiosInstance.patch(`/api/resources/${id}/`,updates)
+                return response.data
+            }
+        },
+        updateStatus:{
+            mutationFn: async ({id,updates}:UpdateResource) =>{
+                const response = await axiosInstance.post(`/api/resources/${id}/mark_complete/`,updates)
                 return response.data
             }
         },

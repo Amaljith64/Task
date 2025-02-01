@@ -17,38 +17,75 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { resourceApis } from "@/services/api/resources/resources";
 import { useToast } from "@/hooks/use-toast";
-
+import { Resource } from "@/types/resource";
 interface ResourceListProps {
-  openChange : (open:boolean) => void
+  openChange?: (open: boolean) => void;
+  resourData: Resource[];
+  actionDisabled?: boolean;
 }
 
-export function ResourceList({ openChange }: ResourceListProps) {
-  const { toast } = useToast()
+export function ResourceList({
+  openChange,
+  resourData,
+  actionDisabled = false,
+}: ResourceListProps) {
+  const { toast } = useToast();
 
-  const { data:resources} = useQuery(resourceApis.queries.getAll)
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: resourceApis.mutations.delete.mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey:resourceApis.queries.getAll.queryKey})
+      queryClient.invalidateQueries({
+        queryKey: resourceApis.queries.getAll.queryKey,
+      });
       toast({
-        title:"Success",
-        description: " Resource deleted"
-
-      })
+        title: "Success",
+        description: " Resource deleted",
+      });
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete resource",
+        description:
+          error instanceof Error ? error.message : "Failed to delete resource",
         variant: "destructive",
       });
     },
-  })
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: resourceApis.mutations.updateStatus.mutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: resourceApis.queries.getAll.queryKey,
+      });
+      toast({
+        title: "Success",
+        description: "Resource marked as complete",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to update resource",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleMarkComplete = (resource: Resource) => {
+    completeMutation.mutate({
+      id: resource.id,
+      updates: {
+        completion_status: true,
+      },
+    });
+  };
 
   return (
     <div className="rounded-md border">
@@ -64,7 +101,7 @@ export function ResourceList({ openChange }: ResourceListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {resources?.map((resource) => (
+          {resourData?.map((resource) => (
             <TableRow key={resource.id}>
               <TableCell className="font-medium">{resource.title}</TableCell>
               <TableCell>
@@ -86,18 +123,36 @@ export function ResourceList({ openChange }: ResourceListProps) {
                   </div>
                 )}
               </TableCell>
-              <TableCell>{format(new Date(resource.created_at), 'MMM dd, yyyy')} </TableCell>
+              <TableCell>
+                {format(new Date(resource?.created_at), "MMM dd, yyyy")}{" "}
+              </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
+                    <Button
+                      disabled={actionDisabled}
+                      variant="ghost"
+                      className="h-8 w-8 p-0"
+                    >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={()=>openChange(true)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => mutation.mutate(resource.id)} className="text-destructive">
+                    <DropdownMenuItem
+                      onSelect={() => handleMarkComplete(resource)}
+                      disabled={resource.completion_status}
+                    >
+                      Mark as complete
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => openChange && openChange(true)}
+                    >
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => mutation.mutate(resource.id)}
+                      className="text-destructive"
+                    >
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>

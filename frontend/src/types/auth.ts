@@ -1,9 +1,11 @@
 import { UseQueryOptions } from '@tanstack/react-query';
+import { UserResponse } from './user';
 
 export interface UserInfo {
     id: number;
     email: string;
     username: string;
+    name: string;
   }
   
   export interface TokenResponse {
@@ -22,10 +24,10 @@ export interface UserInfo {
 
 
 export interface UserQueryList{
-  useUser:UseQueryOptions<any,any,any,any>
+  useUser: UseQueryOptions<UserResponse, Error, UserResponse, string[]>
 }
 
   export interface UserApis{
     query:UserQueryList,
-    mutate:any
+
 }

@@ -16,9 +16,8 @@ import { useQuery } from "@tanstack/react-query";
 
 export function UserNav() {
 
-  const { data:userData,isLoading} = useQuery(userApis.query.useUser)
+  const { data:userData} = useQuery(userApis.query.useUser)
 
-  console.log(userData,'userData');
 
 
     const handleLogout = async () => {

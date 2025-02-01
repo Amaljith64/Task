@@ -24,28 +24,30 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+
+
   const [isLoading, setIsLoading] = useState(false);
+
+
   const router = useRouter();
   const { toast } = useToast();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginCredentials>({
+
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
   });
+
 
   const onSubmit = async (data: LoginCredentials) => {
     try {
       setIsLoading(true);
-      console.log(data, "ff");
-      const response = await loginUser(data);
-      console.log('Login response:', response);
+      await loginUser(data);
+      
       toast({
         title: "Success",
         description: "You have successfully logged in.",
       });
+
       router.push('/dashboard');
     } catch (error) {
       toast({

@@ -1,88 +1,66 @@
-'use server'
 import { CategoryProgress } from "@/components/dashboard/categories/category-progress";
-import { RecentResources } from "@/components/dashboard/resources/recent-resources";
+import { DashboardCard } from "@/components/dashboard/dashboard-card";
+import { ResourceList } from "@/components/dashboard/resources/resource-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import axiosInstance from "@/config/axios-instance";
-import axios from "axios";
-import { BookOpen, Clock, ListChecks, LucideIcon } from "lucide-react";
-import { cookies } from 'next/headers'
+import { setServerSideCookies } from "@/config/axios-instance";
+import { DashboardData } from "@/types/dashboard";
+import { BookOpen, Clock, ListChecks } from "lucide-react";
+import { cookies } from "next/headers";
 
-interface DashboardCardProps {
-  title: string;
-  value: string | number;
-  icon: LucideIcon;
-}
+const defaultSummaryData: DashboardData = {
+  total_resources: 0,
+  total_completed: 0,
+  total_time_spent: 0,
+  category_breakdown: [],
+  resource_breakdown: []
+};
 
+async function fetchDashboardData(): Promise<DashboardData> {
+  try {
+    const cookieStore = await cookies();
+    setServerSideCookies(cookieStore.toString());
 
+    const response = await fetch("http://localhost:3000/api/dashboard/", {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    });
 
-// async function getSummaryData() {
-//   const cookieStore = await cookies()
+    if (!response.ok) {
+      return defaultSummaryData;
+    }
 
-//   const accessToken = cookieStore.get('access_token')?.value;
-//   console.log(cookieStore, accessToken, 'cookieStore');
-//   try {
-//     const response = await axiosInstance.get('/api/resourcess/summary/');
-//     console.log(response, 'form summary');
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching summary data:', error);
-//     throw new Error('Failed to fetch summary data');
-//   }
-
-//   // try {
-//   //   // const response = await axios.post("auth/login/", credentials)
-
-//   //   // return response.data
-//   //   const { data } = await axios.post("api/resources/summary", {
-//   //     headers: {
-//   //       "Content-Type": "application/json",
-//   //     },
-
-//   //   });
-//   //   return data
-
-//   // }
-//   // catch (error) {
-//   //   throw new Error(`${error}`);
-//   // }
-// }
-
-
-function DashboardCard({ title, value, icon: Icon }: DashboardCardProps) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-      </CardContent>
-    </Card>
-  );
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Dashboard data fetch error:", error);
+    return defaultSummaryData;
+  }
 }
 
 export default async function Home() {
-  // const summaryData = await getSummaryData();
+  const summaryData = await fetchDashboardData();
 
   return (
     <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* <DashboardCard
+        <DashboardCard
           title="Total Resources"
           value={summaryData?.total_resources}
           icon={BookOpen}
         />
         <DashboardCard
           title="Completed"
-          value={summaryData?.completed_resources}
+          value={summaryData?.total_completed}
           icon={ListChecks}
         />
         <DashboardCard
           title="Time Spent"
           value={`${summaryData?.total_time_spent} Min`}
           icon={Clock}
-        /> */}
+        />
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-3">
@@ -90,11 +68,18 @@ export default async function Home() {
             <CardTitle>Category Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* <CategoryProgress categories={summaryData?.category_breakdown} /> */}
+            {summaryData?.category_breakdown && (
+              <CategoryProgress categories={summaryData?.category_breakdown} />
+            )}
           </CardContent>
         </Card>
       </div>
-      <RecentResources />
+      {summaryData?.resource_breakdown && (
+        <ResourceList
+          actionDisabled={true}
+          resourData={summaryData?.resource_breakdown}
+        />
+      )}
     </div>
   );
 }

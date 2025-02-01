@@ -42,16 +42,29 @@ class ResourceSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'type', 'category','category_name','completion_status','created_at'
         )
 
+
+class ResourceBreakdownSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    category_name = serializers.CharField()
+    created_at = serializers.DateTimeField()
+    type = serializers.CharField()
+    completion_status = serializers.BooleanField()
+
+class CategoryBreakdownSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    total = serializers.IntegerField()
+    completed = serializers.IntegerField()
+    completion_percentage = serializers.FloatField()
+
 class ResourceSummarySerializer(serializers.Serializer):
     total_resources = serializers.IntegerField()
     total_completed = serializers.IntegerField()
     completion_percentage = serializers.FloatField()
     total_time_spent = serializers.IntegerField()
-    category_breakdown = serializers.DictField(
-        child=serializers.DictField(
-            child=serializers.IntegerField()
-        )
-    )
+    category_breakdown = CategoryBreakdownSerializer(many=True)
+    resource_breakdown = ResourceBreakdownSerializer(many=True)
 
 class CategorySummarySerializer(serializers.Serializer):
     id = serializers.IntegerField()
@@ -60,3 +73,4 @@ class CategorySummarySerializer(serializers.Serializer):
     completed_resources = serializers.IntegerField()
     total_time_spent = serializers.IntegerField()
     completion_percentage = serializers.FloatField()
+    resource_breakdown = ResourceBreakdownSerializer(many=True)

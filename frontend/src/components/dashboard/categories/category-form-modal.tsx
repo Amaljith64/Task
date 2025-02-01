@@ -20,7 +20,7 @@ import { Category } from "@/types/category";
 interface CategoryFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category?: Category; 
+  category?: Category;
 }
 
 export function CategoryFormModal({ open, onOpenChange, category }: CategoryFormModalProps) {
@@ -98,7 +98,7 @@ export function CategoryFormModal({ open, onOpenChange, category }: CategoryForm
             {isEditMode ? "Edit Category" : "Create New Category"}
           </DialogTitle>
           <DialogDescription className="text-center">
-            {isEditMode 
+            {isEditMode
               ? "Update your category details"
               : "Organize your learning resources by creating categories"}
           </DialogDescription>
@@ -115,9 +115,9 @@ export function CategoryFormModal({ open, onOpenChange, category }: CategoryForm
             />
           </div>
           <div className="flex justify-end space-x-4">
-            <Button 
-              variant="outline" 
-              type="button" 
+            <Button
+              variant="outline"
+              type="button"
               onClick={() => onOpenChange(false)}
             >
               Cancel

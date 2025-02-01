@@ -6,6 +6,14 @@ const axiosInstance = axios.create({
     withCredentials:true
 })
 
+// Add a way to set cookies for server-side requests
+export const setServerSideCookies = (cookieHeader:string) => {
+    axiosInstance.defaults.headers.Cookie = cookieHeader;
+};
+
+// Helper to check if code is running on server
+const isServer = typeof window === 'undefined';
+
 
 axiosInstance.interceptors.response.use(
     (response) => response,
@@ -16,11 +24,27 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                await refreshToken();
+                if(isServer){
+                    console.log('its server');
+                    const response = await axiosInstance.post('/auth/refresh/');
+
+                    const newCookies = response.headers['set-cookie']
+                    console.log("new cookie: ",newCookies);
+                    if (newCookies) {
+                        // Update cookie header for subsequent requests
+                        axiosInstance.defaults.headers.Cookie = newCookies.join('; ');
+                    }
+                }
+                else{
+
+                    await refreshToken();
+                }
 
                 return axiosInstance(originalRequest)
             }catch (refreshError){
-                window.location.href = '/auth/login';
+                if (!isServer) {
+                    window.location.href = '/auth/login';
+                }
                 return Promise.reject(refreshError);
             }
         }

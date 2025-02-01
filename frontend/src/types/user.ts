@@ -5,5 +5,8 @@ export interface User {
   }
   
   export type UserResponse = {
-    user: User;
+    id: number;
+    email: string;
+    username: string;
+    name: string;
   };

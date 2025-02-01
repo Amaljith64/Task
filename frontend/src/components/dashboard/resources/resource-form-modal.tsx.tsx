@@ -1,22 +1,17 @@
 "use client";
-
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BookPlus } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { resourceSchema } from "@/schema/resource";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { categoryApis } from "@/services/api/categories/categories";
-import { Category } from "@/types/category";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { resourceApis } from "@/services/api/resources/resources";
 
@@ -29,11 +24,8 @@ interface ResourceFormModalProps {
 }
 
 export default function ResourceFormModal({ open, onOpenChange }: ResourceFormModalProps) {
-  const searchParams = useSearchParams();
-  const categoryId = searchParams.get("category");
-  const queryClient = useQueryClient();
 
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const {toast} = useToast()
 
   const { data: categories } = useQuery(categoryApis.queries.getAll);
@@ -54,7 +46,6 @@ export default function ResourceFormModal({ open, onOpenChange }: ResourceFormMo
         description: error.message,
         variant:'destructive'
       })
-      console.log(error,'error message');
     }
   })
 
