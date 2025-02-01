@@ -8,7 +8,7 @@ export function authMiddleware(req: NextRequest) {
 
   const token = req.cookies.get("access_token");
   const isLoggedIn = token?.value ? true : false;
-
+  
   // If accessing auth paths while logged in
   if (authPaths.includes(pathname) && isLoggedIn) {
     return NextResponse.redirect(new URL('/dashboard', req.url));

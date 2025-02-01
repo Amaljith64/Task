@@ -1,11 +1,20 @@
+
 import axiosInstance from "@/config/axios-instance";
 import { LoginCredentials, RegisterCredentials, TokenResponse, UserInfo } from "@/types/auth";
 
+
 export const registerUser = async (credentials: RegisterCredentials): Promise<TokenResponse>  => {
     try{
-        const response = await axiosInstance.post("/auth/register/",credentials)
+        // const response = await axios.post("auth/login/",credentials)
 
-        return response.data
+        // return response.data
+        const {data} = await axiosInstance.post("/api/auth/register", credentials, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        return data
+
     }
     catch(error){
         throw new Error(`Registration failed: ${error}`);

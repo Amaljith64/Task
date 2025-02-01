@@ -1,3 +1,5 @@
+import { UseQueryOptions } from '@tanstack/react-query';
+
 export interface UserInfo {
     id: number;
     email: string;
@@ -17,3 +19,13 @@ export interface UserInfo {
   export interface RegisterCredentials extends LoginCredentials {
     username: string;
   }
+
+
+export interface UserQueryList{
+  useUser:UseQueryOptions<any,any,any,any>
+}
+
+  export interface UserApis{
+    query:UserQueryList,
+    mutate:any
+}

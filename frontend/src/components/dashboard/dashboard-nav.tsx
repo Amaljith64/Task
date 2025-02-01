@@ -7,8 +7,8 @@ import { BarChart, BookOpen, FolderOpen } from "lucide-react";
 
 const links = [
   { name: "Dashboard", href: "/dashboard", icon: BarChart },
-  { name: "Categories", href: "/categories", icon: FolderOpen },
-  { name: "Resources", href: "/resources", icon: BookOpen },
+  { name: "Categories", href: "/dashboard/categories", icon: FolderOpen },
+  { name: "Resources", href: "/dashboard/resources", icon: BookOpen },
 ];
 
 export function DashboardNav() {

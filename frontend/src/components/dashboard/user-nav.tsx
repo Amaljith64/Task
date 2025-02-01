@@ -11,8 +11,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { logoutUser } from "@/services/api/auth/auth";
+import { userApis } from "@/services/api/user/user";
+import { useQuery } from "@tanstack/react-query";
 
 export function UserNav() {
+
+  const { data:userData,isLoading} = useQuery(userApis.query.useUser)
+
+  console.log(userData,'userData');
+
 
     const handleLogout = async () => {
 		await logoutUser();
@@ -23,16 +30,16 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback>J</AvatarFallback>
+            <AvatarFallback>{userData?.name?.charAt(0) || userData?.email?.charAt(0)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">John Doe</p>
+            <p className="text-sm font-medium leading-none">{userData?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              john@example.com
+            {userData?.email}
             </p>
           </div>
         </DropdownMenuLabel>
