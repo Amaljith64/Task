@@ -4,26 +4,20 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
     
-    const body = await request.json();
-
+    
     try {
+        const body = await request.json();
         const response = await serverAxiosInstance.post("/auth/login/", body);
-
-        const responseHeaders = new Headers();
+        const redirectResponse = NextResponse.redirect(new URL("/dashboard", "http://localhost:3001"));
         const backendCookies = response.headers['set-cookie'];
-        
+
         if (backendCookies) {
             backendCookies.forEach((cookie: string) => {
-                responseHeaders.append('Set-Cookie', cookie);
+                redirectResponse.headers.append('Set-Cookie', cookie);
             });
         }
-        return NextResponse.json(
-            { message: "Success", data: response.data },
-            { 
-                status: 200,
-                headers: responseHeaders
-            }
-        );
+
+        return redirectResponse;
     } catch (error) {
         if (error instanceof AxiosError) {
             const errorMessage = error.response?.data?.non_field_errors?.[0] || 

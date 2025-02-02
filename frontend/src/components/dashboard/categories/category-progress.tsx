@@ -10,7 +10,7 @@ interface CategoryProgressProps {
 
 
 export function CategoryProgress({ categories }: CategoryProgressProps) {
-  console.log(categories,'categories');
+
   return (
     <div className="space-y-8">
       {categories.map((item) => (
@@ -18,10 +18,10 @@ export function CategoryProgress({ categories }: CategoryProgressProps) {
           <div className="flex justify-between">
             <span className="text-sm font-medium">{item.name}</span>
             <span className="text-sm text-muted-foreground">
-              {item.completion_percentage}%
+            {Math.floor(item.completion_percentage)}%
             </span>
           </div>
-          <Progress value={item.completion_percentage} />
+          <Progress value={Math.floor(item.completion_percentage)} />
         </div>
       ))}
     </div>

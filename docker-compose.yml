@@ -20,11 +20,15 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    # volumes:
+    # - ./frontend:/app     # Mount the entire frontend directory
+    # - /app/node_modules 
     ports:
       - "3001:3000"
     environment:
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
       - ENVIRONMENT=${ENVIRONMENT}
+      # - WATCHPACK_POLLING=true 
     depends_on:
       - backend
     networks:

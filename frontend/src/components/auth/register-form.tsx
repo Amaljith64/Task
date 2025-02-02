@@ -50,7 +50,7 @@ export function RegisterForm({
     } catch(error){
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Login failed",
+        description: error instanceof Error ? JSON.stringify(error.message) : "Login failed",
         variant: "destructive",
       });
     } finally {

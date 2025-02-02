@@ -90,7 +90,7 @@ export default function CategoryPage({
         </CardHeader>
         <CardContent>
           {category?.resource_breakdown && (
-            <ResourceList resourData={category.resource_breakdown} />
+            <ResourceList resourData={category.resource_breakdown} isEdit={false} />
           )}
         </CardContent>
       </Card>

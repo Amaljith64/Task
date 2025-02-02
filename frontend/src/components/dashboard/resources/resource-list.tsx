@@ -21,27 +21,39 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { resourceApis } from "@/services/api/resources/resources";
 import { useToast } from "@/hooks/use-toast";
 import { Resource } from "@/types/resource";
+import { useState } from "react";
+import ResourceEditFormModal from "./resource-edit-form-modal";
+import { Category } from "@/types/category";
+import { cn } from "@/lib/utils";
+import { useParams } from "next/navigation";
+
 interface ResourceListProps {
-  openChange?: (open: boolean) => void;
   resourData: Resource[];
   actionDisabled?: boolean;
+  isEdit?: boolean;
+  categories?: Category[];
 }
 
 export function ResourceList({
-  openChange,
   resourData,
   actionDisabled = false,
+  categories,
+  isEdit = true,
 }: ResourceListProps) {
   const { toast } = useToast();
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedResource, SetselectedResource] = useState<Resource | null>(
+    null
+  );
+  const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: resourceApis.mutations.delete.mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: resourceApis.queries.getAll.queryKey,
-      });
+      queryClient.invalidateQueries({ queryKey: resourceApis.queries.getAll.queryKey })
+      if (id) {
+      queryClient.invalidateQueries({ queryKey: resourceApis.queries.getById(Number(id)).queryKey })
+      }
       toast({
         title: "Success",
         description: " Resource deleted",
@@ -60,9 +72,10 @@ export function ResourceList({
   const completeMutation = useMutation({
     mutationFn: resourceApis.mutations.updateStatus.mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: resourceApis.queries.getAll.queryKey,
-      });
+      queryClient.invalidateQueries({ queryKey: resourceApis.queries.getAll.queryKey })
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: resourceApis.queries.getById(Number(id)).queryKey })
+        }
       toast({
         title: "Success",
         description: "Resource marked as complete",
@@ -97,7 +110,9 @@ export function ResourceList({
             <TableHead>Category</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Date Added</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead
+              className={cn("w-[50px]", actionDisabled && "hidden")}
+            ></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -126,13 +141,17 @@ export function ResourceList({
               <TableCell>
                 {format(new Date(resource?.created_at), "MMM dd, yyyy")}{" "}
               </TableCell>
-              <TableCell>
+              <TableCell className={cn("", actionDisabled && "hidden")}>
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger
+                    asChild
+                    className={cn("", actionDisabled && "hidden")}
+                  >
                     <Button
                       disabled={actionDisabled}
                       variant="ghost"
                       className="h-8 w-8 p-0"
+                      onClick={() => SetselectedResource(resource)}
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
@@ -145,7 +164,11 @@ export function ResourceList({
                       Mark as complete
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onSelect={() => openChange && openChange(true)}
+                      onSelect={() => {
+                        setIsModalOpen(true);
+                        SetselectedResource(resource);
+                      }}
+                      className={cn("", !isEdit && "hidden")}
                     >
                       Edit
                     </DropdownMenuItem>
@@ -162,6 +185,17 @@ export function ResourceList({
           ))}
         </TableBody>
       </Table>
+      <ResourceEditFormModal
+        open={isModalOpen}
+        onOpenChange={(open: boolean) => {
+          setIsModalOpen(open);
+          if (!open) {
+            SetselectedResource(null);
+          }
+        }}
+        categories={categories ?? []}
+        resource={selectedResource!}
+      />
     </div>
   );
 }

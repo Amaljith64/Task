@@ -10,10 +10,11 @@ import { z } from "zod";
 import { resourceSchema } from "@/schema/resource";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { categoryApis } from "@/services/api/categories/categories";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { resourceApis } from "@/services/api/resources/resources";
+import { Category } from "@/types/category";
+
 
 
 type FormSchema = z.infer<typeof resourceSchema>
@@ -21,37 +22,38 @@ type FormSchema = z.infer<typeof resourceSchema>
 interface ResourceFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  categories?: Category[];
 }
 
-export default function ResourceFormModal({ open, onOpenChange }: ResourceFormModalProps) {
+export default function ResourceFormModal({ open, onOpenChange, categories }: ResourceFormModalProps) {
 
   const queryClient = useQueryClient();
-  const {toast} = useToast()
+  const { toast } = useToast()
 
-  const { data: categories } = useQuery(categoryApis.queries.getAll);
 
   const mutation = useMutation({
-    mutationFn:resourceApis.mutations.create.mutationFn,
-    onSuccess:()=> {
-      queryClient.invalidateQueries({queryKey:resourceApis.queries.getAll.queryKey})
+    mutationFn: resourceApis.mutations.create.mutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: resourceApis.queries.getAll.queryKey })
       toast({
         title: "Success",
         description: `Resource created successfully`,
       })
       onOpenChange(false);
+      reset()
     },
-    onError:(error)=>{
+    onError: (error) => {
       toast({
         title: "Error",
         description: error.message,
-        variant:'destructive'
+        variant: 'destructive'
       })
     }
   })
 
-  
-  const { register,control, handleSubmit, formState:{errors,}} = useForm<FormSchema>({
-    resolver:zodResolver(resourceSchema)
+
+  const { register, control, handleSubmit, reset, formState: { errors, } } = useForm<FormSchema>({
+    resolver: zodResolver(resourceSchema)
   })
 
 
@@ -64,15 +66,15 @@ export default function ResourceFormModal({ open, onOpenChange }: ResourceFormMo
     <div className="max-w-2xl mx-auto">
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
-        <DialogHeader>
-          <div className="flex items-center justify-center mb-4">
-            <BookPlus className="h-10 w-10 text-primary" />
-          </div>
-          <DialogTitle className="text-2xl text-center">Add New Resource</DialogTitle>
-          <DialogDescription className="text-center">
-            Add details about your learning resource
-          </DialogDescription>
-        </DialogHeader>
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <BookPlus className="h-10 w-10 text-primary" />
+            </div>
+            <DialogTitle className="text-2xl text-center">Add New Resource</DialogTitle>
+            <DialogDescription className="text-center">
+              Add details about your learning resource
+            </DialogDescription>
+          </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
@@ -83,28 +85,26 @@ export default function ResourceFormModal({ open, onOpenChange }: ResourceFormMo
               />
               {errors.title && <span className="text-sm text-red-600">{errors.title.message}</span>}
             </div>
-            
+
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="type">Type</Label>
                 <Controller
-                name="type"
-                control={control}
-                render={({field}) =>(
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ARTICLE">Article</SelectItem>
-                      <SelectItem value="VIDEO">Video</SelectItem>
-                      <SelectItem value="COURSE">Course</SelectItem>
-                      <SelectItem value="BOOK">Book</SelectItem>
-                      <SelectItem value="QUIZ">Quiz</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ARTICLE">Article</SelectItem>
+                        <SelectItem value="VIDEO">Video</SelectItem>
+                        <SelectItem value="QUIZ">Quiz</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                )}
+                  )}
                 />
                 {errors.type && <span className="text-sm text-red-600">{errors.type.message}</span>}
               </div>
@@ -113,7 +113,7 @@ export default function ResourceFormModal({ open, onOpenChange }: ResourceFormMo
                 <Label htmlFor="category">Category</Label>
                 <Controller
                   name="category"
-                  control={control} 
+                  control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={`${field.value}`}>
                       <SelectTrigger>
@@ -145,12 +145,15 @@ export default function ResourceFormModal({ open, onOpenChange }: ResourceFormMo
             </div>
 
             <div className="flex justify-end space-x-4">
-              <Button variant="outline" type="button">Cancel</Button>
+              <Button variant="outline" type="button" onClick={() => {
+                onOpenChange(false)
+                reset()
+              }}>Cancel</Button>
               <Button type="submit">Save Resource</Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

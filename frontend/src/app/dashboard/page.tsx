@@ -16,8 +16,8 @@ const defaultSummaryData: DashboardData = {
 
 
 export default async function Home() {
-  const { data:summaryData = defaultSummaryData } = await serverAxiosInstance.get<DashboardData>("/resource/resources/summary/");
-
+  const { data: summaryData = defaultSummaryData } = await serverAxiosInstance.get<DashboardData>("/resource/resources/summary/");
+  const hideSkeleton = summaryData?.total_resources === 0;
   return (
     <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -37,24 +37,35 @@ export default async function Home() {
           icon={Clock}
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Category Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {summaryData?.category_breakdown && (
-              <CategoryProgress categories={summaryData?.category_breakdown} />
+      {
+        !hideSkeleton ?
+          (<>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <Card className="col-span-3">
+                <CardHeader>
+                  <CardTitle>Category Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {summaryData?.category_breakdown && (
+                    <CategoryProgress categories={summaryData?.category_breakdown} />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            {summaryData?.resource_breakdown && (
+              <ResourceList
+                actionDisabled={true}
+                resourData={summaryData?.resource_breakdown}
+              />
             )}
-          </CardContent>
-        </Card>
-      </div>
-      {summaryData?.resource_breakdown && (
-        <ResourceList
-          actionDisabled={true}
-          resourData={summaryData?.resource_breakdown}
-        />
-      )}
+          </>
+
+          ) :
+
+          <div className="text-center space-y-2">
+            <h2 className="text-center text-2xl font-bold">Get Started by Adding Categories and Resources</h2>
+          </div>
+      }
     </div>
   );
 }

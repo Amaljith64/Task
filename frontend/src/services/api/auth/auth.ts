@@ -1,7 +1,7 @@
 
 import axiosInstance from "@/config/axios-instance";
 import { LoginCredentials, RegisterCredentials, TokenResponse, UserInfo } from "@/types/auth";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 
 export const registerUser = async (credentials: RegisterCredentials): Promise<TokenResponse> => {
@@ -9,8 +9,8 @@ export const registerUser = async (credentials: RegisterCredentials): Promise<To
         const { data } = await axios.post('/api/auth/register', credentials);
         return data;
     } catch (error) {
-        if (error instanceof Error) {
-            throw new Error(`Registration failed: ${error.message}`);
+        if (error instanceof AxiosError) {
+            throw new Error(JSON.stringify({ message: error?.response?.data }));
         } else {
             throw new Error('Registration failed: An unknown error occurred');
         }
@@ -22,8 +22,8 @@ export const loginUser = async (credentials: LoginCredentials): Promise<TokenRes
         const { data } = await axios.post("/api/auth/login/", credentials)
         return data.data;;
     } catch (error) {
-        if (error instanceof Error) {
-            throw new Error(`Login failed: ${error.message}`);
+        if (axios.isAxiosError(error)) {
+            throw new Error(`Login failed: ${error.response?.data?.message || error.message}`);
         } else {
             throw new Error('Login failed: An unknown error occurred');
         }
