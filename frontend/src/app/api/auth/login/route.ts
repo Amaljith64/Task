@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axios-instance";
+import { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -24,10 +25,20 @@ export async function POST(request: Request) {
             }
         );
     } catch (error) {
-        if (error instanceof Error) {
-            throw new Error(`Login failed: ${error.message}`);
-        } else {
-            throw new Error("Login failed: An unknown error occurred");
+        if (error instanceof AxiosError) {
+            const errorMessage = error.response?.data?.non_field_errors?.[0] || 
+                               error.response?.data?.detail ||
+                               error.message;
+            
+            return NextResponse.json(
+                { message: errorMessage },
+                { status: error.response?.status || 400 }
+            );
         }
+
+        return NextResponse.json(
+            { message: "An unexpected error occurred" },
+            { status: 500 }
+        );
     }
 }
