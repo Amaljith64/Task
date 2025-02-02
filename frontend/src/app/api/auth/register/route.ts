@@ -1,11 +1,11 @@
-import axiosInstance from '@/config/axios-instance';
+import serverAxiosInstance from '@/config/server-axios-instance';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   const body = await request.json();
 
   try {
-    const { data } = await axiosInstance.post("/auth/register/", body)
+    const { data } = await serverAxiosInstance.post("/auth/register/", body)
     return NextResponse.json({ message: 'Su', data: data }, { status: 200 });
   } catch (error) {
     console.error('Error sending email:', error);

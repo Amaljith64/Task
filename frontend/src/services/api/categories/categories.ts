@@ -14,14 +14,14 @@ export const categoryApis: CategoryApis ={
       getAll: {
         queryKey: CATEGORY_KEYS.lists(),
         queryFn: async (): Promise<Category[]> => {
-          const response = await axiosInstance.get("/api/categories/");
+          const response = await axiosInstance.get("/resource/categories/");
           return response.data;
         }
       },
       getById:(id:number) =>( {
         queryKey: CATEGORY_KEYS.detail(id),
         queryFn: async (): Promise<Category> => {
-          const response = await axiosInstance.get(`/api/categories/${id}`);
+          const response = await axiosInstance.get(`/resource/categories/${id}`);
           return response.data;
         },
       })
@@ -29,19 +29,19 @@ export const categoryApis: CategoryApis ={
     mutations :{
       create:{
           mutationFn: async (data : CreateCategory) : Promise<Category> => {
-              const response = await axiosInstance.post("/api/categories/",data)
+              const response = await axiosInstance.post("/resource/categories/",data)
               return response.data
           }
       },
       update: {
         mutationFn: async ({id,updates,}: UpdateCategory): Promise<Category> => {
-          const response = await axiosInstance.patch(`/api/categories/${id}/`, updates);
+          const response = await axiosInstance.patch(`/resource/categories/${id}/`, updates);
           return response.data;
         },
       },
       delete: {
         mutationFn: async (id: number): Promise<void> => {
-          await axiosInstance.delete(`/api/categories/${id}/`);
+          await axiosInstance.delete(`/resource/categories/${id}/`);
         },
       },
     }

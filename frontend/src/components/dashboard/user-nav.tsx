@@ -11,17 +11,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { logoutUser } from "@/services/api/auth/auth";
-import { userApis } from "@/services/api/user/user";
+import { userApis } from "@/services/api/user-info/user";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+
 
 export function UserNav() {
+  const router = useRouter()
 
   const { data:userData} = useQuery(userApis.query.useUser)
 
-
-
     const handleLogout = async () => {
 		await logoutUser();
+    router.push('/auth/login')
+
 	};
 
   return (

@@ -2,10 +2,9 @@ import { CategoryProgress } from "@/components/dashboard/categories/category-pro
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
 import { ResourceList } from "@/components/dashboard/resources/resource-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { setServerSideCookies } from "@/config/axios-instance";
+import serverAxiosInstance from "@/config/server-axios-instance";
 import { DashboardData } from "@/types/dashboard";
 import { BookOpen, Clock, ListChecks } from "lucide-react";
-import { cookies } from "next/headers";
 
 const defaultSummaryData: DashboardData = {
   total_resources: 0,
@@ -15,33 +14,9 @@ const defaultSummaryData: DashboardData = {
   resource_breakdown: []
 };
 
-async function fetchDashboardData(): Promise<DashboardData> {
-  try {
-    const cookieStore = await cookies();
-    setServerSideCookies(cookieStore.toString());
-
-    const response = await fetch("http://localhost:3000/api/dashboard/", {
-      method: "GET",
-      cache: "no-store",
-      headers: {
-        Cookie: cookieStore.toString(),
-      },
-    });
-
-    if (!response.ok) {
-      return defaultSummaryData;
-    }
-
-    const { data } = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Dashboard data fetch error:", error);
-    return defaultSummaryData;
-  }
-}
 
 export default async function Home() {
-  const summaryData = await fetchDashboardData();
+  const { data:summaryData = defaultSummaryData } = await serverAxiosInstance.get<DashboardData>("/resource/resources/summary/");
 
   return (
     <div className="space-y-8">

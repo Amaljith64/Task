@@ -1,4 +1,4 @@
-import axiosInstance from "@/config/axios-instance";
+import serverAxiosInstance from "@/config/server-axios-instance";
 import { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     try {
-        const response = await axiosInstance.post("/auth/login/", body);
+        const response = await serverAxiosInstance.post("/auth/login/", body);
 
         const responseHeaders = new Headers();
         const backendCookies = response.headers['set-cookie'];

@@ -32,7 +32,7 @@ export const loginUser = async (credentials: LoginCredentials): Promise<TokenRes
 
 export const logoutUser = async (): Promise<void> => {
     try {
-        const { data } = await axios.post("/api/auth/logout/")
+        const { data } = await axiosInstance.post("/auth/logout/")
         return data
     } catch (error) {
         if (error instanceof Error) {

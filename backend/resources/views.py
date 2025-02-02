@@ -34,7 +34,6 @@ class ResourceViewSet(viewsets.ModelViewSet):
     
     @action(detail=True,methods=['post'])
     def mark_complete(self,request,pk=None):
-        print(pk,'pkpkpk')
         resource = self.get_object()
         current_time = timezone.now()
 
@@ -146,7 +145,7 @@ class CategorySummaryView(APIView):
 
     
 class ResourceSummaryView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
 
         try:

@@ -38,8 +38,10 @@ export default function CategoriesPage() {
     mutation.mutate(id);
   };
 
-  if (isLoading) return <div>loading...</div>;
-  if (error) return <div>Error loading categories</div>;
+  console.log(error);
+
+  // if (isLoading) return <div>loading...</div>;
+  // if (error) return <div>Error loading categories</div>;
 
   return (
     <div className="space-y-8">
@@ -61,7 +63,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {categories &&
+        {categories && !isLoading &&
           categories.map((category) => (
             <CategoryListCard
               category={category}

@@ -15,14 +15,14 @@ export const resourceApis:ResourceApis = {
         getAll:{
             queryKey: RESOURCE_KEYS.lists(),
             queryFn:async()=>{
-                const response = await axiosInstance.get('/api/resources/');
+                const response = await axiosInstance.get('/resource/resources/');
                 return response.data;
             }
         },
         getById:(id:number) => ({
             queryKey:RESOURCE_KEYS.detail(id),
             queryFn: async() =>{
-                const response = await axiosInstance.get(`/api/categories/${id}/summary/`)
+                const response = await axiosInstance.get(`/resource/categories/${id}/summary/`)
                 
                 return response.data;
             }
@@ -30,7 +30,7 @@ export const resourceApis:ResourceApis = {
         getSummary:{
             queryKey:['resource','summary'],
             queryFn: async() =>{
-                const response = await axiosInstance.get('/api/resources/summary/');
+                const response = await axiosInstance.get('/resource/resources/summary/');
                 console.log(response,'form summary');
                 return response.data;
             }
@@ -39,25 +39,25 @@ export const resourceApis:ResourceApis = {
     mutations:{
         create:{
             mutationFn:async(data:CreateResource)=>{
-                const resource = await axiosInstance.post("/api/resources/",data)
+                const resource = await axiosInstance.post("/resource/resources/",data)
                 return resource.data
             }
         },
         update:{
             mutationFn: async ({id,updates}:UpdateResource) =>{
-                const response = await axiosInstance.patch(`/api/resources/${id}/`,updates)
+                const response = await axiosInstance.patch(`/resource/resources/${id}/`,updates)
                 return response.data
             }
         },
         updateStatus:{
             mutationFn: async ({id,updates}:UpdateResource) =>{
-                const response = await axiosInstance.post(`/api/resources/${id}/mark_complete/`,updates)
+                const response = await axiosInstance.post(`/resource/resources/${id}/mark_complete/`,updates)
                 return response.data
             }
         },
         delete:{
             mutationFn:async (id:number)=>{
-                await axiosInstance.delete(`/api/resources/${id}/`)
+                await axiosInstance.delete(`/resource/resources/${id}/`)
             }
         }
     }

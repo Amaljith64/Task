@@ -34,7 +34,7 @@ class UserRegistrationView(CreateAPIView):
 class LoginView(APIView):
     permission_classes = [AllowAny]
     def post(self,request):
-        print("Login attempt with data:", request.data)
+        print("Login attempted")
         serializer = LoginUserSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -45,10 +45,6 @@ class LoginView(APIView):
             response = Response({
                 "user": CustomUserSerializer(user).data
             },status=status.HTTP_200_OK)
-
-            print(response,'resp')
-            print(access_token,'access_token')
-            print(refresh,'refresh')
 
             response.set_cookie(key="access_token",value=access_token,
                                 httponly=True,

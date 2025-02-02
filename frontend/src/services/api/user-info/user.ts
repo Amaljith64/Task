@@ -8,7 +8,7 @@ export const userApis:UserApis = {
         useUser:{
             queryKey: ['user'],
             queryFn:async()=>{
-                const response = await axiosInstance.get<UserResponse>('/auth/user-info/');
+                const response = await axiosInstance.get<UserResponse>('auth/user-info');
                 return response.data;
             }
         }
