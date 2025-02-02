@@ -84,6 +84,12 @@ docker compose up -d --build
 docker compose exec backend python manage.py migrate
 ```
 
+5. Access frontend and backend
+```bash
+# Access the frontend at http://localhost:3001
+# Django admin at http://localhost:8001
+```
+
 ## 📝 API Endpoints
 
 ### Authentication
