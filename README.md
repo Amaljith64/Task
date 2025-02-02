@@ -68,7 +68,7 @@ cd Task
 
 2. Configure environment
 ```bash
-cp .env.template .env
+cp .env.example .env
 ```
 
 3. Generate Django Secret Key
@@ -81,7 +81,7 @@ print(secrets.token_urlsafe(32))
 4. Start and Run migrations
 ```bash
 docker compose up -d --build
-docker exec backend python manage.py migrate
+docker compose exec backend python manage.py migrate
 ```
 
 ## 📝 API Endpoints
